@@ -1,0 +1,87 @@
+Q) How to control resource usage in Kubernetes?
+
+Ans:
+
+Controlling resource usage in Kubernetes is crucial for maintaining the performance and stability of your applications and clusters. Here are some key strategies to manage and control resource usage:
+
+1. Set Resource Requests and Limits
+Requests: Define the minimum amount of CPU and memory that a container needs. Kubernetes uses this information to schedule pods on nodes that have sufficient resources.
+Limits: Specify the maximum amount of CPU and memory a container can use. If a container exceeds this limit, Kubernetes may throttle its usage or kill the container if it consistently breaches the limit.
+
+Example:  
+resources:
+  requests:
+    memory: "256Mi"
+    cpu: "500m"
+  limits:
+    memory: "512Mi"
+    cpu: "1000m"
+2) Use Horizontal Pod Autoscaling (HPA)
+HPA automatically scales the number of pod replicas based on observed CPU or memory usage, or custom metrics.
+
+Example:
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-deployment
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+3)Employ Vertical Pod Autoscaling (VPA)
+VPA adjusts the CPU and memory resource requests and limits of containers based on usage patterns. This helps optimize resource allocation for individual pods.
+
+Example:
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: my-vpa
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: my-deployment
+  updatePolicy:
+    updateMode: "Auto"
+
+4) Taints/Tolerations
+Use node affinity to control which nodes your pods can be scheduled on based on node labels. 
+Taints and tolerations can be used to ensure that only pods that tolerate specific taints can be scheduled on particular nodes.
+
+Taints and Tolerations Example:
+
+apiVersion: v1
+kind: Node
+metadata:
+  name: node1
+spec:
+  taints:
+  - key: "dedicated"
+    value: "gpu"
+    effect: "NoSchedule"
+
+---
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  tolerations:
+  - key: "dedicated"
+    operator: "Equal"
+    value: "gpu"
+    effect: "NoSchedule"
+
+5) Monitor Resource Usage
+Use monitoring tools like Prometheus, Grafana, or Kubernetes Dashboard to keep an eye on resource usage and identify any potential bottlenecks or inefficient resource usage patterns.
+
+By applying these strategies, you can effectively manage and control resource usage in your Kubernetes clusters, ensuring a balanced and efficient allocation of resources.
+
+
